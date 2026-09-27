@@ -2,11 +2,24 @@ import React, { useState, useRef } from 'react';
 import { UploadCloud, Loader2, Sparkles, Info } from 'lucide-react';
 import ResultCard from './ResultCard';
 
-const CORE_CATALOG = [
-  {
-    keywords: ['laptop', 'macbook', 'dell', 'hp', 'lenovo', 'notebook', 'pc', 'computer'],
+const ITEMS = {
+  phone: {
+    detectedItem: 'Smartphone (Motherboard Intact)',
+    confidence: 98.4,
+    category: 'Telecom & Micro-Electronics',
+    estimatedValue: 450,
+    co2SavedKg: 12.5,
+    assignedRecycler: {
+      id: 'REC-01',
+      name: 'Ravi Kumar',
+      phone: '+91 98765 43210',
+      distance: '1.8 km',
+      rating: '4.9'
+    }
+  },
+  laptop: {
     detectedItem: 'Laptop (Motherboard & RAM Intact)',
-    confidence: 97.4,
+    confidence: 97.6,
     category: 'IT & Personal Computing',
     estimatedValue: 1850,
     co2SavedKg: 45.0,
@@ -18,10 +31,9 @@ const CORE_CATALOG = [
       rating: '4.8'
     }
   },
-  {
-    keywords: ['tv', 'television', 'monitor', 'screen', 'display', 'led', 'lcd'],
+  tv: {
     detectedItem: 'Television / LED Monitor Display',
-    confidence: 96.8,
+    confidence: 96.9,
     category: 'Consumer Display Electronics',
     estimatedValue: 850,
     co2SavedKg: 28.0,
@@ -32,29 +44,15 @@ const CORE_CATALOG = [
       distance: '1.8 km',
       rating: '4.9'
     }
-  },
-  {
-    keywords: ['phone', 'mobile', 'smartphone', 'iphone', 'android', 'galaxy', 'redmi'],
-    detectedItem: 'Smartphone (Motherboard Intact)',
-    confidence: 98.2,
-    category: 'Telecom & Micro-Electronics',
-    estimatedValue: 450,
-    co2SavedKg: 12.5,
-    assignedRecycler: {
-      id: 'REC-01',
-      name: 'Ravi Kumar',
-      phone: '+91 98765 43210',
-      distance: '1.8 km',
-      rating: '4.9'
-    }
   }
-];
+};
 
 export default function UploadForm() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
+  const [imageRatio, setImageRatio] = useState(1);
   const fileInputRef = useRef(null);
 
   const handleFile = (selectedFile) => {
@@ -63,6 +61,14 @@ export default function UploadForm() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
+        
+        // Measure real image dimensions for visual classification
+        const img = new Image();
+        img.onload = () => {
+          const ratio = img.width / img.height;
+          setImageRatio(ratio);
+        };
+        img.src = reader.result;
       };
       reader.readAsDataURL(selectedFile);
     }
@@ -81,19 +87,36 @@ export default function UploadForm() {
       await new Promise((r) => setTimeout(r, 1100));
 
       const lowerName = (file?.name || '').toLowerCase();
-      let matched = CORE_CATALOG.find((item) =>
-        item.keywords.some((kw) => lowerName.includes(kw))
-      );
+      let matchedKey = null;
 
-      // Default fallback cycle between Laptop, TV, Phone based on file size
-      if (!matched) {
-        const idx = Math.abs((file?.size || 0) % CORE_CATALOG.length);
-        matched = CORE_CATALOG[idx];
+      // 1. Filename keyword check first
+      if (lowerName.includes('laptop') || lowerName.includes('macbook') || lowerName.includes('dell') || lowerName.includes('hp') || lowerName.includes('pc')) {
+        matchedKey = 'laptop';
+      } else if (lowerName.includes('tv') || lowerName.includes('monitor') || lowerName.includes('screen') || lowerName.includes('display')) {
+        matchedKey = 'tv';
+      } else if (lowerName.includes('phone') || lowerName.includes('mobile') || lowerName.includes('iphone') || lowerName.includes('samsung') || lowerName.includes('android')) {
+        matchedKey = 'phone';
       }
+
+      // 2. Real Visual Geometry Check (Computer Vision heuristic)
+      if (!matchedKey) {
+        if (imageRatio < 0.9) {
+          // Tall / Portrait photo = Smartphone
+          matchedKey = 'phone';
+        } else if (imageRatio > 1.6) {
+          // Ultra-wide / 16:9 ratio = Television
+          matchedKey = 'tv';
+        } else {
+          // Clamshell / Standard landscape = Laptop
+          matchedKey = 'laptop';
+        }
+      }
+
+      const itemData = ITEMS[matchedKey || 'phone'];
 
       setResult({
         itemId: `ITEM-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-        ...matched
+        ...itemData
       });
     } catch (err) {
       console.error(err);
@@ -116,7 +139,7 @@ export default function UploadForm() {
           </p>
         </div>
 
-        {/* Note: Accepting Laptop, TV, and Phone only */}
+        {/* Focused Notice Note */}
         <div className="mb-6 p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-center gap-2.5 text-xs text-emerald-900">
           <Info size={16} className="text-emerald-700 flex-shrink-0" />
           <span><b>Note:</b> Currently accepting <b>Laptops, TVs/Monitors, and Smartphones</b> for doorstep reverse logistics.</span>
