@@ -33,7 +33,7 @@ export default function ResultCard({ result, onReset }) {
 
         <div className="my-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs text-slate-600 space-y-2">
           <div className="flex justify-between"><span className="text-slate-400">Item:</span> <span className="font-medium text-slate-800">{result.detectedItem}</span></div>
-          <div className="flex justify-between"><span className="text-slate-400">Guaranteed Payout:</span> <span className="font-semibold text-emerald-600">₹{result.estimatedValue}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Estimated Payout:</span> <span className="font-semibold text-emerald-600">₹{result.estimatedValue}*</span></div>
           <div className="flex justify-between"><span className="text-slate-400">Pickup Address:</span> <span className="font-medium text-slate-800">{address}</span></div>
           <div className="flex justify-between"><span className="text-slate-400">Slot:</span> <span className="font-medium text-slate-800">Tomorrow, 10:00 AM - 1:00 PM</span></div>
         </div>
@@ -68,6 +68,9 @@ export default function ResultCard({ result, onReset }) {
           <span className="text-2xl font-extrabold text-emerald-600 flex items-center justify-end">
             <IndianRupee size={20} strokeWidth={2} />
             {result.estimatedValue}
+          </span>
+          <span className="text-[10px] text-slate-400 block mt-0.5">
+            *Final payout may vary based on physical condition at pickup
           </span>
         </div>
       </div>
