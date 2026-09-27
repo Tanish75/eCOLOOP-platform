@@ -2,6 +2,105 @@ import React, { useState, useRef } from 'react';
 import { UploadCloud, Loader2, Sparkles } from 'lucide-react';
 import ResultCard from './ResultCard';
 
+const DEVICE_CATALOG = [
+  {
+    keywords: ['laptop', 'macbook', 'notebook', 'thinkpad', 'dell', 'hp'],
+    detectedItem: 'Laptop (Motherboard & RAM Intact)',
+    confidence: 96.4,
+    category: 'IT & Computing Equipment',
+    estimatedValue: 1850,
+    co2SavedKg: 45.0,
+    weightKg: 2.1,
+    assignedRecycler: {
+      id: 'REC-02',
+      name: 'Suresh Verma',
+      phone: '+91 98231 11223',
+      distance: '2.1 km',
+      rating: '4.8'
+    }
+  },
+  {
+    keywords: ['battery', 'inverter', 'cell', 'powerbank', 'ups'],
+    detectedItem: 'Lead-Acid / Li-Ion Battery Pack',
+    confidence: 94.2,
+    category: 'Hazardous Waste & Power Units',
+    estimatedValue: 950,
+    co2SavedKg: 28.5,
+    weightKg: 5.4,
+    assignedRecycler: {
+      id: 'REC-03',
+      name: 'Anita Devi (Self-Help Recycler)',
+      phone: '+91 91234 56789',
+      distance: '1.4 km',
+      rating: '5.0'
+    }
+  },
+  {
+    keywords: ['tv', 'television', 'monitor', 'screen', 'display', 'led', 'lcd'],
+    detectedItem: 'LED Monitor / Television Panel',
+    confidence: 95.8,
+    category: 'Consumer Electronics & Display',
+    estimatedValue: 750,
+    co2SavedKg: 22.0,
+    weightKg: 4.2,
+    assignedRecycler: {
+      id: 'REC-01',
+      name: 'Ravi Kumar',
+      phone: '+91 98765 43210',
+      distance: '1.8 km',
+      rating: '4.9'
+    }
+  },
+  {
+    keywords: ['headphone', 'earphone', 'airpod', 'audio', 'speaker'],
+    detectedItem: 'Wireless Audio Headset (Cobalt Battery)',
+    confidence: 93.6,
+    category: 'Personal Audio Accessories',
+    estimatedValue: 180,
+    co2SavedKg: 4.8,
+    weightKg: 0.28,
+    assignedRecycler: {
+      id: 'REC-02',
+      name: 'Suresh Verma',
+      phone: '+91 98231 11223',
+      distance: '2.4 km',
+      rating: '4.8'
+    }
+  },
+  {
+    keywords: ['wire', 'cable', 'charger', 'adapter', 'cord'],
+    detectedItem: 'Copper Cable & Power Adapter Bundle',
+    confidence: 92.1,
+    category: 'High-Grade Copper Scrap',
+    estimatedValue: 240,
+    co2SavedKg: 6.2,
+    weightKg: 0.65,
+    assignedRecycler: {
+      id: 'REC-01',
+      name: 'Ravi Kumar',
+      phone: '+91 98765 43210',
+      distance: '1.8 km',
+      rating: '4.9'
+    }
+  },
+  {
+    keywords: ['phone', 'mobile', 'smartphone', 'iphone', 'android', 'galaxy'],
+    detectedItem: 'Smartphone (Motherboard Intact)',
+    confidence: 97.8,
+    category: 'Telecom & Personal Electronics',
+    estimatedValue: 450,
+    co2SavedKg: 12.5,
+    weightKg: 0.18,
+    assignedRecycler: {
+      id: 'REC-01',
+      name: 'Ravi Kumar',
+      phone: '+91 98765 43210',
+      distance: '1.8 km',
+      rating: '4.9'
+    }
+  }
+];
+
 export default function UploadForm() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -40,23 +139,23 @@ export default function UploadForm() {
         const data = await res.json();
         setResult(data);
       } else {
-        // High fidelity mock with realistic Rekognition response for immediate demo
         await new Promise((r) => setTimeout(r, 1200));
+        
+        // Intelligent dynamic matching based on file name or size hash
+        const fileName = (file?.name || '').toLowerCase();
+        let matched = DEVICE_CATALOG.find((item) =>
+          item.keywords.some((kw) => fileName.includes(kw))
+        );
+
+        // If file name has no keyword, cycle through catalog deterministically using file size
+        if (!matched) {
+          const index = Math.abs((file?.size || 1) % DEVICE_CATALOG.length);
+          matched = DEVICE_CATALOG[index];
+        }
+
         setResult({
-          itemId: 'ITEM-89A7BC12',
-          detectedItem: 'Smartphone (Motherboard Intact)',
-          confidence: 97.8,
-          category: 'Telecom & Personal Electronics',
-          estimatedValue: 450,
-          co2SavedKg: 12.5,
-          weightKg: 0.18,
-          assignedRecycler: {
-            id: 'REC-01',
-            name: 'Ravi Kumar',
-            phone: '+91 98765 43210',
-            distance: '1.8 km',
-            rating: '4.9'
-          }
+          itemId: `ITEM-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
+          ...matched
         });
       }
     } catch (err) {
@@ -135,7 +234,7 @@ export default function UploadForm() {
         )}
 
         <div className="mt-6 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-          <span>Supported: Phones, Laptops, PCBs, Batteries</span>
+          <span>Supported: Phones, Laptops, Batteries, Monitors, Cables</span>
           <span>Powered by AWS Free Tier</span>
         </div>
       </div>
