@@ -75,15 +75,15 @@ export default function ResultCard({ result, onReset }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 my-6">
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <span className="text-xs text-slate-500 block">Carbon Diverted</span>
-          <span className="text-lg font-bold text-slate-900 mt-0.5 block">{result.co2SavedKg} kg CO₂</span>
+      {/* Carbon Diverted metric (Weight removed) */}
+      <div className="my-6 p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+        <div>
+          <span className="text-xs text-slate-500 block">Carbon Emission Diverted</span>
+          <span className="text-xl font-bold text-slate-900 mt-0.5 block">{result.co2SavedKg} kg CO₂</span>
         </div>
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <span className="text-xs text-slate-500 block">Net Weight</span>
-          <span className="text-lg font-bold text-slate-900 mt-0.5 block">{result.weightKg} kg</span>
-        </div>
+        <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
+          Eco Certified
+        </span>
       </div>
 
       {/* Recycler Profile */}
