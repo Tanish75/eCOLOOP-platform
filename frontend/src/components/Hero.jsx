@@ -16,7 +16,7 @@ export default function Hero() {
           className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold"
         >
           <Zap size={14} className="text-emerald-600" />
-          Track 03 Winner Entry • Waste & Clean Energy
+          Track 03 • Waste & Clean Energy
         </motion.div>
 
         <motion.h1
